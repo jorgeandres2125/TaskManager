@@ -1,6 +1,7 @@
 <div
   cdkDropListGroup
-  class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0"
+  class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0 lg:grid lg:overflow-visible lg:pb-0"
+  [class]="gridColumns[columns().length] ?? 'lg:grid-cols-3'"
 >
   @for (column of columns(); track column.status) {
     <section

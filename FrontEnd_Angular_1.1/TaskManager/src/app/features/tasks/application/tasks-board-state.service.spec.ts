@@ -55,7 +55,7 @@ describe('TasksBoardStateService', () => {
       ],
     });
     board = TestBed.inject(TasksBoardStateService);
-    board.load({ priority: null, tag: null, userId: null, sortDirection: SortDirectionEnum.Desc });
+    board.load({ status: null, priority: null, tag: null, userId: null, sortDirection: SortDirectionEnum.Desc });
   });
 
   afterEach(() => jasmine.clock().uninstall());
@@ -94,5 +94,13 @@ describe('TasksBoardStateService', () => {
 
     expect(column(TaskStatusEnum.Pending).items()).toEqual([pendingTask]);
     expect(column(TaskStatusEnum.InProgress).items()).toEqual([]);
+  });
+
+  it('con el filtro de estado solo consulta la columna de ese estado', () => {
+    api.getTasks.calls.reset();
+
+    board.load({ status: TaskStatusEnum.InProgress, priority: null, tag: null, userId: null, sortDirection: SortDirectionEnum.Desc });
+
+    expect(statusesRequested()).toEqual([TaskStatusEnum.InProgress]);
   });
 });

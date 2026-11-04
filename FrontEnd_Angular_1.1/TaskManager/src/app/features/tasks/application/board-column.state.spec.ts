@@ -27,6 +27,7 @@ function page(items: Task[], totalCount: number): PagedResult<Task> {
 }
 
 const filters: TaskFilters = {
+  status: null,
   priority: null,
   tag: null,
   userId: null,

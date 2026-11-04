@@ -5,14 +5,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
 import { SearchField } from '../../../../../shared/components/search-field/search-field';
 import { TaskPriorityEnum } from '../../../domain/enums/task-priority.enum';
+import { TaskStatusEnum } from '../../../domain/enums/task-status.enum';
 import { TaskFilters as TaskFiltersModel } from '../../../domain/models/task';
-import { TASK_PRIORITY_OPTIONS } from '../../task-display';
+import { TASK_PRIORITY_OPTIONS, TASK_STATUS_DOT_CLASSES, TASK_STATUS_LABELS } from '../../task-display';
 import { TaskPriority } from '../task-priority/task-priority';
 
 const TAG_DEBOUNCE_MS = 400;
 
 /**
- * Filtros del tablero de tareas (el estado no es un filtro: cada columna del Kanban es un estado).
+ * Filtros del tablero de tareas: estado (muestra solo esa columna del Kanban), prioridad y etiqueta.
  * Solo emite cambios; no conoce el estado de la aplicación ni la API.
  */
 @Component({
@@ -26,16 +27,21 @@ export class TaskFilters implements OnInit {
   readonly filtersChange = output<Partial<TaskFiltersModel>>();
 
   protected readonly priorityOptions = TASK_PRIORITY_OPTIONS;
+  protected readonly statusOptions = Object.values(TaskStatusEnum);
+  protected readonly statusLabels = TASK_STATUS_LABELS;
+  protected readonly statusDots = TASK_STATUS_DOT_CLASSES;
 
   protected readonly form = inject(NonNullableFormBuilder).group({
+    status: [null as TaskStatusEnum | null],
     priority: [null as TaskPriorityEnum | null],
     tag: [''],
   });
 
   constructor() {
-    const { priority, tag } = this.form.controls;
+    const { status, priority, tag } = this.form.controls;
 
     merge(
+      status.valueChanges.pipe(map((value) => ({ status: value }))),
       priority.valueChanges.pipe(map((value) => ({ priority: value }))),
       tag.valueChanges.pipe(
         debounceTime(TAG_DEBOUNCE_MS),
@@ -49,8 +55,14 @@ export class TaskFilters implements OnInit {
   }
 
   ngOnInit(): void {
-    const { priority, tag } = this.filters();
-    this.form.setValue({ priority, tag: tag ?? '' }, { emitEvent: false });
+    const { status, priority, tag } = this.filters();
+    this.form.setValue({ status, priority, tag: tag ?? '' }, { emitEvent: false });
+  }
+
+  protected selectStatus(status: TaskStatusEnum | null): void {
+    if (this.form.controls.status.value !== status) {
+      this.form.controls.status.setValue(status);
+    }
   }
 
   protected selectPriority(priority: TaskPriorityEnum | null): void {
@@ -60,12 +72,12 @@ export class TaskFilters implements OnInit {
   }
 
   protected clear(): void {
-    this.form.reset({ priority: null, tag: '' }, { emitEvent: false });
-    this.filtersChange.emit({ priority: null, tag: null });
+    this.form.reset({ status: null, priority: null, tag: '' }, { emitEvent: false });
+    this.filtersChange.emit({ status: null, priority: null, tag: null });
   }
 
   protected get hasFilters(): boolean {
-    const { priority, tag } = this.form.getRawValue();
-    return priority !== null || tag.trim() !== '';
+    const { status, priority, tag } = this.form.getRawValue();
+    return status !== null || priority !== null || tag.trim() !== '';
   }
 }

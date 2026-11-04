@@ -7,6 +7,7 @@ import { CreateTaskRequest, Task, TaskFilters, UpdateTaskRequest } from '../doma
 import { TasksApiService } from '../infrastructure/tasks-api.service';
 
 const INITIAL_FILTERS: TaskFilters = {
+  status: null,
   priority: null,
   tag: null,
   userId: null,

@@ -56,6 +56,11 @@ export class TaskBoard {
 
   protected readonly labels = TASK_STATUS_LABELS;
   protected readonly dotClasses = TASK_STATUS_DOT_CLASSES;
+  protected readonly gridColumns: Readonly<Partial<Record<number, string>>> = {
+    1: 'lg:grid-cols-1',
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+  };
   protected readonly countClasses = TASK_STATUS_COUNT_CLASSES;
   protected readonly skeletonCards = [1, 2, 3];
 

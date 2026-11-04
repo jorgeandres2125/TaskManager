@@ -31,7 +31,7 @@ export interface TaskQuery extends PageQuery {
   readonly sortDirection: SortDirectionEnum;
 }
 
-export type TaskFilters = Omit<TaskQuery, keyof PageQuery | 'status'>;
+export type TaskFilters = Omit<TaskQuery, keyof PageQuery>;
 
 export function canMoveTo(task: Task, status: TaskStatusEnum): boolean {
   return task.status === status || task.allowedTransitions.includes(status);

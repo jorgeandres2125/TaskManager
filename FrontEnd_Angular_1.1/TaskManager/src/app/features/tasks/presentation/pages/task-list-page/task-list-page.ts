@@ -13,11 +13,17 @@ import { BoardColumnView, TaskBoard } from '../../components/task-board/task-boa
 import { TaskFilters } from '../../components/task-filters/task-filters';
 import { openTaskFormDialog } from '../../components/task-form-dialog/task-form-dialog';
 import { TaskStatusChange } from '../../components/task-status-menu/task-status-menu';
-import { TASK_STATUS_DOT_CLASSES } from '../../task-display';
+import { TASK_STATUS_DOT_CLASSES, TASK_STATUS_LABELS } from '../../task-display';
+
+const STAT_LABELS: Readonly<Record<TaskStatusEnum, string>> = {
+  [TaskStatusEnum.Pending]: 'pendientes',
+  [TaskStatusEnum.InProgress]: 'en progreso',
+  [TaskStatusEnum.Done]: 'completadas',
+};
 
 /**
- * Listado de tareas como tablero Kanban: una columna por estado (el filtro por estado del enunciado),
- * filtros por prioridad y etiqueta, y el panel del equipo para filtrar por responsable.
+ * Listado de tareas como tablero Kanban: una columna por estado, filtros por estado (muestra solo esa columna),
+ * prioridad y etiqueta, y el panel del equipo para filtrar por responsable.
  * Crear y editar tareas se hace en una ventana modal.
  */
 @Component({
@@ -37,22 +43,28 @@ export class TaskListPage implements OnInit {
   protected readonly selectedUserId = computed(() => this.filters().userId);
   protected readonly selectedUser = computed(() => this.directory.findById(this.selectedUserId()));
 
-  protected readonly boardColumns = computed<readonly BoardColumnView[]>(() =>
-    this.board.columns.map((column) => ({
+  protected readonly boardColumns = computed<readonly BoardColumnView[]>(() => {
+    const status = this.filters().status;
+    return this.board.columns
+      .filter((column) => status === null || column.status === status)
+      .map((column) => ({
       status: column.status,
       items: column.items(),
       totalCount: column.totalCount(),
       loading: column.loading(),
       loaded: column.loaded(),
       hasMore: column.hasMore(),
-    })),
-  );
+    }));
+  });
 
   protected readonly subtitle = computed(() => {
     const user = this.selectedUser();
-    const { priority, tag } = this.filters();
+    const { status, priority, tag } = this.filters();
     if (user) {
       return `Tareas de ${user.name}`;
+    }
+    if (status) {
+      return `Solo tareas en «${TASK_STATUS_LABELS[status]}»`;
     }
     return priority || tag ? 'Tablero filtrado' : 'Tablero del equipo';
   });
@@ -62,12 +74,17 @@ export class TaskListPage implements OnInit {
     if (!columns.every((column) => column.loaded)) {
       return [{ value: '…', label: 'cargando' }];
     }
-    const count = (status: TaskStatusEnum) => columns.find((column) => column.status === status)?.totalCount ?? 0;
+    const total: PageStat = { value: columns.reduce((sum, column) => sum + column.totalCount, 0), label: 'tareas' };
+    if (columns.length === 1) {
+      return [total];
+    }
     return [
-      { value: columns.reduce((total, column) => total + column.totalCount, 0), label: 'tareas' },
-      { value: count(TaskStatusEnum.Pending), label: 'pendientes', dotClass: TASK_STATUS_DOT_CLASSES[TaskStatusEnum.Pending] },
-      { value: count(TaskStatusEnum.InProgress), label: 'en progreso', dotClass: TASK_STATUS_DOT_CLASSES[TaskStatusEnum.InProgress] },
-      { value: count(TaskStatusEnum.Done), label: 'completadas', dotClass: TASK_STATUS_DOT_CLASSES[TaskStatusEnum.Done] },
+      total,
+      ...columns.map((column) => ({
+        value: column.totalCount,
+        label: STAT_LABELS[column.status],
+        dotClass: TASK_STATUS_DOT_CLASSES[column.status],
+      })),
     ];
   });
 

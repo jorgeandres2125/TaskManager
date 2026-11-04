@@ -9,6 +9,7 @@ import { TasksStateService } from './tasks-state.service';
 /**
  * Estado del tablero Kanban: una columna por cada estado del enunciado (Pending, InProgress, Done).
  * Los contadores salen del `totalCount` de la consulta paginada de cada columna; no hace falta un endpoint nuevo.
+ * Con el filtro de estado solo se consulta la columna elegida (parámetro `status` de la API).
  */
 @Injectable({ providedIn: 'root' })
 export class TasksBoardStateService {
@@ -24,7 +25,9 @@ export class TasksBoardStateService {
 
   load(filters: TaskFilters): void {
     for (const column of this.columns) {
-      column.reload(filters);
+      if (filters.status === null || filters.status === column.status) {
+        column.reload(filters);
+      }
     }
   }
 
