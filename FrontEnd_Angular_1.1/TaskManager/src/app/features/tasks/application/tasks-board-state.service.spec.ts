@@ -4,10 +4,12 @@ import { Subject, of, throwError } from 'rxjs';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import { SortDirectionEnum } from '../../../shared/enums/sort-direction.enum';
 import { PagedResult } from '../../../shared/models/paged-result';
+import { TaskPriorityEnum } from '../domain/enums/task-priority.enum';
 import { TaskStatusEnum } from '../domain/enums/task-status.enum';
 import { Task, TaskQuery } from '../domain/models/task';
 import { TasksApiService } from '../infrastructure/tasks-api.service';
 import { TasksBoardStateService } from './tasks-board-state.service';
+import { TasksStateService } from './tasks-state.service';
 
 const pendingTask: Task = {
   id: 't1',
@@ -44,7 +46,7 @@ describe('TasksBoardStateService', () => {
 
   beforeEach(() => {
     jasmine.clock().install();
-    api = jasmine.createSpyObj<TasksApiService>('TasksApiService', ['getTasks', 'create', 'changeStatus']);
+    api = jasmine.createSpyObj<TasksApiService>('TasksApiService', ['getTasks', 'create', 'changeStatus', 'patchAdditionalInfo']);
     api.getTasks.and.callFake((query) => of(pageFor(query)));
 
     TestBed.configureTestingModule({
@@ -102,5 +104,29 @@ describe('TasksBoardStateService', () => {
     board.load({ status: TaskStatusEnum.InProgress, priority: null, tag: null, userId: null, sortDirection: SortDirectionEnum.Desc });
 
     expect(statusesRequested()).toEqual([TaskStatusEnum.InProgress]);
+  });
+
+  it('sustituye la tarjeta por la tarea que devuelve el PATCH, sin volver a consultar la columna', () => {
+    const updated: Task = {
+      ...pendingTask,
+      additionalInfo: { priority: TaskPriorityEnum.High, estimatedCompletionDate: null, tags: ['urgente'], metadata: null },
+    };
+    api.patchAdditionalInfo.and.returnValue(of(updated));
+    api.getTasks.calls.reset();
+
+    board.patchAdditionalInfo(pendingTask, { priority: TaskPriorityEnum.High, addTags: ['urgente'] }).subscribe();
+
+    expect(column(TaskStatusEnum.Pending).items()).toEqual([updated]);
+    expect(api.getTasks).not.toHaveBeenCalled();
+  });
+
+  it('con filtro de etiqueta o prioridad recarga la columna, porque la tarea puede dejar de cumplirlo', () => {
+    TestBed.inject(TasksStateService).updateFilters({ tag: 'backend' });
+    api.patchAdditionalInfo.and.returnValue(of(pendingTask));
+    api.getTasks.calls.reset();
+
+    board.patchAdditionalInfo(pendingTask, { removeTags: ['backend'] }).subscribe();
+
+    expect(statusesRequested()).toEqual([TaskStatusEnum.Pending]);
   });
 });

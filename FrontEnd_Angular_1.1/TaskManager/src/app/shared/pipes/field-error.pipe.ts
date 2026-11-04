@@ -24,6 +24,9 @@ export class FieldErrorPipe implements PipeTransform {
     if (errors['maxItems']) {
       return `Máximo ${errors['maxItems'].max} elementos.`;
     }
+    if (errors['pattern']) {
+      return 'El formato no es válido.';
+    }
     if (errors['matDatepickerParse']) {
       return 'La fecha no es válida.';
     }

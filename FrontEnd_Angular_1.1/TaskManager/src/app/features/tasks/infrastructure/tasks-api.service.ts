@@ -5,7 +5,7 @@ import { API_BASE_URL } from '../../../core/config/api.config';
 import { PagedResult } from '../../../shared/models/paged-result';
 import { toHttpParams } from '../../../shared/utils/http-params';
 import { TaskStatusEnum } from '../domain/enums/task-status.enum';
-import { CreateTaskRequest, Task, TaskQuery, UpdateTaskRequest } from '../domain/models/task';
+import { CreateTaskRequest, PatchTaskAdditionalInfoRequest, Task, TaskQuery, UpdateTaskRequest } from '../domain/models/task';
 
 /** Acceso HTTP a `/api/tasks`. No guarda estado. */
 @Injectable({ providedIn: 'root' })
@@ -23,6 +23,10 @@ export class TasksApiService {
 
   update(taskId: string, request: UpdateTaskRequest): Observable<Task> {
     return this.http.put<Task>(`${this.url}/${taskId}`, request);
+  }
+
+  patchAdditionalInfo(taskId: string, request: PatchTaskAdditionalInfoRequest): Observable<Task> {
+    return this.http.patch<Task>(`${this.url}/${taskId}/additional-info`, request);
   }
 
   changeStatus(taskId: string, status: TaskStatusEnum): Observable<Task> {

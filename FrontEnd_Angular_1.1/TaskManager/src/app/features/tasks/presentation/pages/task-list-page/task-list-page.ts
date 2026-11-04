@@ -8,9 +8,10 @@ import { UserRail } from '../../../../users/presentation/components/user-rail/us
 import { TasksBoardStateService } from '../../../application/tasks-board-state.service';
 import { TasksStateService } from '../../../application/tasks-state.service';
 import { TaskStatusEnum } from '../../../domain/enums/task-status.enum';
-import { Task, TaskFilters as TaskFiltersModel } from '../../../domain/models/task';
+import { Task, TaskAdditionalInfoChange, TaskFilters as TaskFiltersModel } from '../../../domain/models/task';
 import { BoardColumnView, TaskBoard } from '../../components/task-board/task-board';
 import { TaskFilters } from '../../components/task-filters/task-filters';
+import { openTaskAdditionalInfoDialog } from '../../components/task-additional-info-dialog/task-additional-info-dialog';
 import { openTaskFormDialog } from '../../components/task-form-dialog/task-form-dialog';
 import { TaskStatusChange } from '../../components/task-status-menu/task-status-menu';
 import { TASK_STATUS_DOT_CLASSES, TASK_STATUS_LABELS } from '../../task-display';
@@ -24,7 +25,7 @@ const STAT_LABELS: Readonly<Record<TaskStatusEnum, string>> = {
 /**
  * Listado de tareas como tablero Kanban: una columna por estado, filtros por estado (muestra solo esa columna),
  * prioridad y etiqueta, y el panel del equipo para filtrar por responsable.
- * Crear y editar tareas se hace en una ventana modal.
+ * Crear y editar tareas se hace en una ventana modal; la información adicional también se cambia desde la tarjeta.
  */
 @Component({
   selector: 'app-task-list-page',
@@ -113,6 +114,14 @@ export class TaskListPage implements OnInit {
 
   protected onLoadMore(status: TaskStatusEnum): void {
     this.board.loadMore(status);
+  }
+
+  protected onAdditionalInfoChange({ task, request }: TaskAdditionalInfoChange): void {
+    this.board.patchAdditionalInfo(task, request).subscribe({ error: () => undefined });
+  }
+
+  protected openAdditionalInfo(task: Task): void {
+    openTaskAdditionalInfoDialog(this.dialog, task).subscribe();
   }
 
   protected openForm(task: Task | null = null): void {

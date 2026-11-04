@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { InViewport } from '../../../../../shared/directives/in-viewport.directive';
 import { TaskStatusEnum } from '../../../domain/enums/task-status.enum';
-import { Task, canMoveTo } from '../../../domain/models/task';
+import { Task, TaskAdditionalInfoChange, canMoveTo } from '../../../domain/models/task';
 import { TASK_STATUS_COUNT_CLASSES, TASK_STATUS_DOT_CLASSES, TASK_STATUS_LABELS } from '../../task-display';
 import { TaskCard } from '../task-card/task-card';
 import { TaskStatusChange } from '../task-status-menu/task-status-menu';
@@ -51,6 +51,8 @@ export class TaskBoard {
   readonly move = output<TaskStatusChange>();
   readonly loadMore = output<TaskStatusEnum>();
   readonly edit = output<Task>();
+  readonly editAdditionalInfo = output<Task>();
+  readonly additionalInfoChange = output<TaskAdditionalInfoChange>();
 
   protected readonly draggingTask = signal<Task | null>(null);
 

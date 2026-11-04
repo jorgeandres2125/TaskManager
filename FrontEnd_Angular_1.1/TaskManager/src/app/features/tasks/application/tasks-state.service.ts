@@ -3,7 +3,7 @@ import { Observable, defer, finalize, tap } from 'rxjs';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import { SortDirectionEnum } from '../../../shared/enums/sort-direction.enum';
 import { TaskStatusEnum } from '../domain/enums/task-status.enum';
-import { CreateTaskRequest, Task, TaskFilters, UpdateTaskRequest } from '../domain/models/task';
+import { CreateTaskRequest, PatchTaskAdditionalInfoRequest, Task, TaskFilters, UpdateTaskRequest } from '../domain/models/task';
 import { TasksApiService } from '../infrastructure/tasks-api.service';
 
 const INITIAL_FILTERS: TaskFilters = {
@@ -15,7 +15,8 @@ const INITIAL_FILTERS: TaskFilters = {
 };
 
 /**
- * Filtros de las tareas (se conservan al volver a la pantalla) y casos de uso de creación, edición y cambio de estado.
+ * Filtros de las tareas (se conservan al volver a la pantalla) y casos de uso de creación, edición, cambio de estado
+ * y cambios parciales de la información adicional (PATCH, que la API aplica con JSON_MODIFY).
  * Las tareas se muestran en el tablero Kanban, que carga cada columna con estos filtros.
  */
 @Injectable({ providedIn: 'root' })
@@ -42,6 +43,16 @@ export class TasksStateService {
     return this.api
       .update(taskId, request)
       .pipe(tap((task) => this.notifications.success(`Tarea #${task.number} "${task.title}" actualizada.`)));
+  }
+
+  patchAdditionalInfo(task: Task, request: PatchTaskAdditionalInfoRequest): Observable<Task> {
+    return defer(() => {
+      this._updatingTaskId.set(task.id);
+      return this.api.patchAdditionalInfo(task.id, request);
+    }).pipe(
+      tap((updated) => this.notifications.success(`Información adicional de la tarea #${updated.number} actualizada.`)),
+      finalize(() => this._updatingTaskId.set(null)),
+    );
   }
 
   changeStatus(task: Task, status: TaskStatusEnum): Observable<Task> {

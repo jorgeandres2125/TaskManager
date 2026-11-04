@@ -2,6 +2,7 @@ using TaskManager.Application.Abstractions.Tasks;
 using TaskManager.Application.DTOs.Tasks;
 using TaskManager.Application.Exceptions;
 using TaskManager.Application.Models.Tasks;
+using TaskManager.Application.UseCases.Commands.Tasks;
 using TaskManager.Application.Utilities.Enums;
 using TaskManager.Domain.Entities.Tasks;
 using TaskManager.Domain.Enums.Tasks;
@@ -35,6 +36,18 @@ internal static class TaskMappings
                 dto.Tags,
                 dto.Metadata);
 
+    public static TaskAdditionalInfoPatch ToPatch(this PatchTaskAdditionalInfoCommand command, DateTime updatedAt) => new(
+        command.TaskId,
+        EnumNames.ParseOptional<TaskPriorityEnum>(command.Priority),
+        command.ClearPriority,
+        command.EstimatedCompletionDate,
+        command.ClearEstimatedCompletionDate,
+        NormalizeTags(command.AddTags),
+        NormalizeTags(command.RemoveTags),
+        command.SetMetadata ?? new Dictionary<string, string>(),
+        command.RemoveMetadata?.Distinct().ToArray() ?? [],
+        updatedAt);
+
     public static async Task<TaskDto> GetRequiredAsync(
         this ITaskReadRepository reader,
         Guid taskId,
@@ -43,4 +56,11 @@ internal static class TaskMappings
         var result = await reader.SearchAsync(TaskSearchCriteria.ById(taskId), cancellationToken);
         return result.Items.SingleOrDefault()?.ToDto() ?? throw new NotFoundException("la tarea", taskId);
     }
+
+    private static string[] NormalizeTags(IEnumerable<string>? tags) =>
+        (tags ?? [])
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Select(tag => tag.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 }

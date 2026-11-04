@@ -50,6 +50,26 @@ export interface CreateTaskRequest {
 
 export type UpdateTaskRequest = CreateTaskRequest;
 
+export interface PatchTaskAdditionalInfoRequest {
+  readonly priority?: TaskPriorityEnum;
+  readonly clearPriority?: boolean;
+  readonly estimatedCompletionDate?: string;
+  readonly clearEstimatedCompletionDate?: boolean;
+  readonly addTags?: readonly string[];
+  readonly removeTags?: readonly string[];
+  readonly setMetadata?: Readonly<Record<string, string>>;
+  readonly removeMetadata?: readonly string[];
+}
+
+export interface TaskAdditionalInfoChange {
+  readonly task: Task;
+  readonly request: PatchTaskAdditionalInfoRequest;
+}
+
 export const TASK_TITLE_MAX_LENGTH = 200;
 export const TASK_MAX_TAGS = 10;
 export const TASK_TAG_MAX_LENGTH = 50;
+export const TASK_MAX_METADATA_ENTRIES = 20;
+export const TASK_METADATA_KEY_MAX_LENGTH = 50;
+export const TASK_METADATA_VALUE_MAX_LENGTH = 500;
+export const TASK_METADATA_KEY_PATTERN = /^[A-Za-z0-9_-]+$/;

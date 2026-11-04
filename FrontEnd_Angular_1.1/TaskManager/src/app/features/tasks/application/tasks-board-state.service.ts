@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, inject } from '@angular/core';
-import { Observable, defer, finalize } from 'rxjs';
+import { Observable, defer, finalize, tap } from 'rxjs';
 import { TaskStatusEnum } from '../domain/enums/task-status.enum';
-import { Task, TaskFilters } from '../domain/models/task';
+import { PatchTaskAdditionalInfoRequest, Task, TaskFilters } from '../domain/models/task';
 import { TasksApiService } from '../infrastructure/tasks-api.service';
 import { BoardColumnState } from './board-column.state';
 import { TasksStateService } from './tasks-state.service';
@@ -10,6 +10,8 @@ import { TasksStateService } from './tasks-state.service';
  * Estado del tablero Kanban: una columna por cada estado del enunciado (Pending, InProgress, Done).
  * Los contadores salen del `totalCount` de la consulta paginada de cada columna; no hace falta un endpoint nuevo.
  * Con el filtro de estado solo se consulta la columna elegida (parámetro `status` de la API).
+ * Los cambios de información adicional sustituyen la tarjeta por la que devuelve la API; si hay filtro de prioridad
+ * o de etiqueta, la columna se recarga, porque la tarea puede haber dejado de cumplirlo.
  */
 @Injectable({ providedIn: 'root' })
 export class TasksBoardStateService {
@@ -47,6 +49,20 @@ export class TasksBoardStateService {
       finalize(() => {
         source.reload();
         target.reload();
+      }),
+    );
+  }
+
+  patchAdditionalInfo(task: Task, request: PatchTaskAdditionalInfoRequest): Observable<Task> {
+    return this.tasksState.patchAdditionalInfo(task, request).pipe(
+      tap((updated) => {
+        const column = this.column(updated.status);
+        const { priority, tag } = this.tasksState.filters();
+        if (priority !== null || tag !== null) {
+          column.reload();
+        } else {
+          column.replace(updated);
+        }
       }),
     );
   }

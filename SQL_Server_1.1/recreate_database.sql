@@ -3,7 +3,7 @@
 
     Ejecuta, en orden:
         00_create_database.sql   crea la base (si no existe) en nivel de compatibilidad 160
-        01_schema.sql            tablas, secuencia, restricciones, índices, procedimiento y migraciones de EF
+        01_schema.sql            tablas, secuencia, restricciones, índices, procedimientos y migraciones de EF
         02_seed.sql              datos de ejemplo básicos (3 usuarios y 5 tareas)
         03_seed_bulk.sql         datos de prueba hasta 200 usuarios y 1000 tareas
 

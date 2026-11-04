@@ -53,6 +53,8 @@
             [actionsDisabled]="updatingTaskId() !== null"
             (statusChange)="move.emit($event)"
             (edit)="edit.emit($event)"
+            (editAdditionalInfo)="editAdditionalInfo.emit($event)"
+            (additionalInfoChange)="additionalInfoChange.emit($event)"
           />
         } @empty {
           @if (column.loaded) {

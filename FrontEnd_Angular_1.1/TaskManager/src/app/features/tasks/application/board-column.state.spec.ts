@@ -94,4 +94,13 @@ describe('BoardColumnState', () => {
     expect(column.items()[0].id).toBe('z');
     expect(column.totalCount()).toBe(3);
   });
+
+  it('sustituye una tarea por su versión actualizada sin cambiar el orden ni el contador', () => {
+    column.reload(filters);
+
+    column.replace({ ...task('b'), title: 'b editada' });
+
+    expect(column.items().map((t) => t.title)).toEqual(['a', 'b editada']);
+    expect(column.totalCount()).toBe(3);
+  });
 });

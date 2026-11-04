@@ -27,7 +27,7 @@ describe('TasksStateService', () => {
   let state: TasksStateService;
 
   beforeEach(() => {
-    api = jasmine.createSpyObj<TasksApiService>('TasksApiService', ['getTasks', 'create', 'update', 'changeStatus']);
+    api = jasmine.createSpyObj<TasksApiService>('TasksApiService', ['getTasks', 'create', 'update', 'changeStatus', 'patchAdditionalInfo']);
     notifications = jasmine.createSpyObj<NotificationService>('NotificationService', ['success', 'error']);
 
     TestBed.configureTestingModule({
@@ -90,5 +90,21 @@ describe('TasksStateService', () => {
 
     expect(api.changeStatus).not.toHaveBeenCalled();
     expect(state.updatingTaskId()).toBeNull();
+  });
+
+  it('envía el cambio parcial de la información adicional, marca la tarea y avisa al terminar', () => {
+    const response = new Subject<Task>();
+    const request = { priority: TaskPriorityEnum.High, addTags: ['urgente'] };
+    api.patchAdditionalInfo.and.returnValue(response);
+
+    state.patchAdditionalInfo(task, request).subscribe();
+    expect(state.updatingTaskId()).toBe('t1');
+
+    response.next(task);
+    response.complete();
+
+    expect(api.patchAdditionalInfo).toHaveBeenCalledWith('t1', request);
+    expect(state.updatingTaskId()).toBeNull();
+    expect(notifications.success).toHaveBeenCalled();
   });
 });

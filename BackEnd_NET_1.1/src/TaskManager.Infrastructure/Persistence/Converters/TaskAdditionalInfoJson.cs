@@ -22,6 +22,8 @@ internal static class TaskAdditionalInfoJson
     public static TaskAdditionalInfo? Deserialize(string? json) =>
         string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<TaskAdditionalInfo>(json, Options);
 
+    public static string SerializeFragment<T>(T value) => JsonSerializer.Serialize(value, Options);
+
     public static T? DeserializeFragment<T>(string? json) =>
         string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, Options);
 }

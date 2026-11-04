@@ -6,7 +6,27 @@
   <header class="flex items-center gap-2">
     <span class="font-mono text-xs font-medium tabular-nums tracking-tight text-fg-subtle">#{{ task().number }}</span>
     @if (priority(); as priority) {
-      <app-task-priority [priority]="priority" />
+      <button
+        type="button"
+        class="cursor-pointer rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-text disabled:cursor-default"
+        [matMenuTriggerFor]="priorityMenu"
+        [disabled]="actionsDisabled()"
+        [attr.aria-label]="'Cambiar la prioridad de la tarea #' + task().number"
+        matTooltip="Cambiar prioridad"
+      >
+        <app-task-priority [priority]="priority" />
+      </button>
+      <mat-menu #priorityMenu="matMenu">
+        @for (option of priorityOptions; track option) {
+          <button mat-menu-item type="button" [disabled]="option === priority" (click)="setPriority(option)">
+            <app-task-priority [priority]="option" />
+          </button>
+        }
+        <button mat-menu-item type="button" (click)="setPriority(null)">
+          <mat-icon>block</mat-icon>
+          <span>Quitar prioridad</span>
+        </button>
+      </mat-menu>
     }
     <div
       class="-my-1.5 -mr-1.5 ml-auto flex shrink-0 items-center opacity-70 transition-opacity duration-150 group-hover/card:opacity-100 group-focus-within/card:opacity-100"
@@ -20,6 +40,16 @@
         (click)="edit.emit(task())"
       >
         <mat-icon class="!text-[20px]">edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        [disabled]="actionsDisabled()"
+        matTooltip="Información adicional"
+        [attr.aria-label]="'Información adicional de la tarea #' + task().number"
+        (click)="editAdditionalInfo.emit(task())"
+      >
+        <mat-icon class="!text-[20px]">tune</mat-icon>
       </button>
       <app-task-status-menu
         [task]="task()"
@@ -35,7 +65,9 @@
   @if (tags().length) {
     <ul class="flex flex-wrap gap-1.5" aria-label="Etiquetas">
       @for (tag of tags(); track tag) {
-        <li><app-tag-pill [tag]="tag" /></li>
+        <li>
+          <app-tag-pill [tag]="tag" [removable]="true" [disabled]="actionsDisabled()" (remove)="removeTag($event)" />
+        </li>
       }
     </ul>
   }

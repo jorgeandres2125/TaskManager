@@ -9,7 +9,7 @@ Scripts para recrear la base de datos completa: esquema, procedimiento almacenad
 | Orden | Script | Qué hace |
 |---|---|---|
 | 0 | `00_create_database.sql` | Crea la base (si no existe) y fija el nivel de compatibilidad 160. |
-| 1 | `01_schema.sql` | Tablas `Users`, `Tasks`, `UserPhotos` y `Logs`; secuencia `TaskNumberSequence`; claves, índices y restricciones (incluida la validación de JSON); procedimiento `dbo.usp_GetTasks`; y la tabla `__EFMigrationsHistory`. **Se genera desde las migraciones de EF Core, no se edita a mano.** |
+| 1 | `01_schema.sql` | Tablas `Users`, `Tasks`, `UserPhotos` y `Logs`; secuencia `TaskNumberSequence`; claves, índices y restricciones (incluida la validación de JSON); procedimientos `dbo.usp_GetTasks` y `dbo.usp_PatchTaskAdditionalInfo` (`JSON_MODIFY`); y la tabla `__EFMigrationsHistory`. **Se genera desde las migraciones de EF Core, no se edita a mano.** |
 | 2 | `02_seed.sql` | Datos de ejemplo básicos: 3 usuarios y 5 tareas. |
 | 3 | `03_seed_bulk.sql` | Datos de prueba hasta 200 usuarios y 1000 tareas, con la información adicional generada con `JSON_OBJECT` y `JSON_ARRAY`. |
 | 5 | `05_demo_data.sql` | **Datos exactos de la base de demostración**: los 200 usuarios, las 1005 tareas (con su número, fechas e información adicional) y las 200 fotos. Alternativa a 02 + 03. |
@@ -97,4 +97,5 @@ Después, apunte la API a esa base (`ConnectionStrings:TaskManager`, ver el READ
 
 - **Desde cero**, en una base vacía: recreación completa, segunda ejecución sin cambios (idempotencia), procedimiento `usp_GetTasks` funcionando, EF Core sin migraciones pendientes y `drop_database.sql` (solo borra con la confirmación correcta). En esta máquina el LocalDB de SQL Server 2025 está dañado, así que se usó LocalDB 2019 con una copia temporal que solo sustituye las tres funciones de 2022.
 - **`recreate_database_demo.sql` desde cero**, ejecutado dos veces: la huella SHA-256 de todos los usuarios, tareas y fotos (y el valor de la secuencia) es idéntica a la de la base de demostración original.
+- **`dbo.usp_PatchTaskAdditionalInfo`** (migración `AddPatchTaskAdditionalInfoProcedure`): `recreate_database_demo.sql` ejecutado dos veces desde cero en LocalDB 2019 (misma copia temporal), con el procedimiento creado y la migración registrada en `__EFMigrationsHistory`; la sección 6.2 de `04_json_queries.sql` devuelve `Updated` y revierte los cambios.
 - **Sobre SQL Server 2022 real** (la base de demostración, que ya estaba completa): los scripts originales, sin cambios, se ejecutan sin errores y no modifican nada.

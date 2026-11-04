@@ -3,7 +3,7 @@
 
     Ejecuta, en orden:
         00_create_database.sql   crea la base (si no existe) en nivel de compatibilidad 160
-        01_schema.sql            tablas, secuencia, restricciones, índices, procedimiento y migraciones de EF
+        01_schema.sql            tablas, secuencia, restricciones, índices, procedimientos y migraciones de EF
         05_demo_data.sql         los 200 usuarios, las 1005 tareas y las 200 fotos de la base de demostración
 
     Es la alternativa a recreate_database.sql (que genera datos de prueba equivalentes pero distintos).

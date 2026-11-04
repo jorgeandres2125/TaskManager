@@ -37,6 +37,7 @@ public static class DependencyInjection
             .AddRequestHandler<GetTasksQuery, PagedResultDto<TaskDto>, GetTasksQueryHandler>()
             .AddRequestHandler<GetTaskByIdQuery, TaskDto, GetTaskByIdQueryHandler>()
             .AddRequestHandler<UpdateTaskCommand, TaskDto, UpdateTaskCommandHandler>()
+            .AddRequestHandler<PatchTaskAdditionalInfoCommand, TaskDto, PatchTaskAdditionalInfoCommandHandler>()
             .AddRequestHandler<ChangeTaskStatusCommand, TaskDto, ChangeTaskStatusCommandHandler>();
 
         return services;

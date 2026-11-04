@@ -1,0 +1,138 @@
+<h2 mat-dialog-title>Información adicional · #{{ task().number }}</h2>
+
+<mat-dialog-content>
+  <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-1">
+      <p class="text-sm font-medium text-fg [overflow-wrap:anywhere]">{{ task().title }}</p>
+      <p class="text-xs text-fg-muted">Cada cambio se guarda al momento y solo modifica ese dato.</p>
+    </div>
+
+    <div class="grid gap-2 md:grid-cols-2 md:gap-4">
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Prioridad</mat-label>
+        <mat-select [formControl]="priorityControl" (selectionChange)="setPriority($event.value)">
+          <mat-select-trigger>
+            @if (priorityControl.value; as priority) {
+              <app-task-priority [priority]="priority" />
+            }
+          </mat-select-trigger>
+          <mat-option [value]="null">Sin prioridad</mat-option>
+          @for (priority of priorityOptions; track priority) {
+            <mat-option [value]="priority"><app-task-priority [priority]="priority" /></mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Fecha estimada</mat-label>
+        <input matInput [matDatepicker]="picker" [formControl]="dateControl" (dateChange)="setDate($event.value)" />
+        <div matIconSuffix class="flex items-center">
+          @if (dateControl.value) {
+            <button
+              mat-icon-button
+              type="button"
+              [disabled]="busy()"
+              matTooltip="Quitar fecha"
+              aria-label="Quitar la fecha estimada"
+              (click)="clearDate()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+          <mat-datepicker-toggle [for]="picker" />
+        </div>
+        <mat-datepicker #picker />
+        <mat-error>{{ dateControl | fieldError }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Etiquetas ({{ tags().length }} / {{ maxTags }})</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Etiquetas" [disabled]="busy()">
+        @for (tag of tags(); track tag) {
+          <mat-chip-row (removed)="removeTag(tag)">
+            {{ tag }}
+            <button matChipRemove type="button" [attr.aria-label]="'Quitar ' + tag">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      <input
+        [placeholder]="tagsFull() ? 'Máximo de etiquetas alcanzado' : 'Escriba y pulse Enter o coma'"
+        [disabled]="busy() || tagsFull()"
+        [matChipInputFor]="chipGrid"
+        [matChipInputSeparatorKeyCodes]="tagSeparatorKeys"
+        (matChipInputTokenEnd)="addTag($event)"
+      />
+      @if (tagError()) {
+        <mat-hint class="!text-red-300">{{ tagError() }}</mat-hint>
+      }
+    </mat-form-field>
+
+    <section class="flex flex-col gap-3" aria-labelledby="metadata-title">
+      <h3 id="metadata-title" class="text-sm font-medium text-fg-muted">
+        Metadatos ({{ metadata().length }} / {{ maxMetadataEntries }})
+      </h3>
+
+      @if (metadata().length) {
+        <ul class="flex flex-col divide-y divide-line rounded-md border border-line">
+          @for (entry of metadata(); track entry[0]) {
+            <li class="flex items-center gap-3 py-1 pl-3 pr-1">
+              <span class="w-20 shrink-0 truncate font-mono md:w-32 text-xs text-fg-muted" [title]="entry[0]">{{ entry[0] }}</span>
+              <span class="min-w-0 flex-1 text-sm text-fg [overflow-wrap:anywhere]">{{ entry[1] }}</span>
+              <button
+                mat-icon-button
+                type="button"
+                [disabled]="busy()"
+                matTooltip="Editar"
+                [attr.aria-label]="'Editar el metadato ' + entry[0]"
+                (click)="editMetadata(entry[0], entry[1])"
+              >
+                <mat-icon class="!text-[20px]">edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                [disabled]="busy()"
+                matTooltip="Quitar"
+                [attr.aria-label]="'Quitar el metadato ' + entry[0]"
+                (click)="removeMetadata(entry[0])"
+              >
+                <mat-icon class="!text-[20px]">delete</mat-icon>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-sm text-fg-subtle">Esta tarea no tiene metadatos.</p>
+      }
+
+      <form class="flex flex-col gap-2 md:flex-row md:items-start" [formGroup]="metadataForm" (ngSubmit)="saveMetadata()">
+        <mat-form-field class="md:w-48" subscriptSizing="dynamic">
+          <mat-label>Clave</mat-label>
+          <input matInput formControlName="key" [maxlength]="metadataKeyMaxLength" autocomplete="off" />
+          <mat-hint>Letras sin tilde, números, - y _</mat-hint>
+          <mat-error>{{ metadataForm.controls.key | fieldError }}</mat-error>
+        </mat-form-field>
+        <mat-form-field class="md:flex-1" subscriptSizing="dynamic">
+          <mat-label>Valor</mat-label>
+          <input matInput formControlName="value" [maxlength]="metadataValueMaxLength" autocomplete="off" />
+          <mat-error>{{ metadataForm.controls.value | fieldError }}</mat-error>
+        </mat-form-field>
+        <button
+          mat-stroked-button
+          type="submit"
+          class="md:mt-2"
+          [disabled]="busy() || (isNewMetadataKey() && metadata().length >= maxMetadataEntries)"
+        >
+          {{ isNewMetadataKey() ? 'Añadir' : 'Actualizar' }}
+        </button>
+      </form>
+    </section>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button type="button" [mat-dialog-close]="task()">Listo</button>
+</mat-dialog-actions>

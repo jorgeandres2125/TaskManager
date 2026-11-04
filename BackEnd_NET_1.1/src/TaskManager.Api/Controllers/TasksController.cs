@@ -61,6 +61,21 @@ public class TasksController : ControllerBase
         CancellationToken cancellationToken) =>
         Ok(await handler.HandleAsync(request.ToCommand(id), cancellationToken));
 
+    /// <summary>
+    /// Cambia solo los campos indicados de la información adicional con JSON_MODIFY de SQL Server: prioridad, fecha
+    /// estimada, etiquetas que se añaden o quitan y metadatos que se asignan o quitan. Lo que no se envía se conserva.
+    /// </summary>
+    [HttpPatch("{id:guid}/additional-info")]
+    [ProducesResponseType<TaskDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TaskDto>> PatchAdditionalInfo(
+        Guid id,
+        PatchTaskAdditionalInfoRequest request,
+        [FromServices] IRequestHandler<PatchTaskAdditionalInfoCommand, TaskDto> handler,
+        CancellationToken cancellationToken) =>
+        Ok(await handler.HandleAsync(request.ToCommand(id), cancellationToken));
+
     [HttpPut("{id:guid}/status")]
     [ProducesResponseType<TaskDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]

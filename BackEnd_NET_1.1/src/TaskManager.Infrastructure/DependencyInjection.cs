@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<ITaskRepository, TaskEFRepository>();
 
         services.AddScoped<ITaskReadRepository, TaskReadDapperRepository>();
+        services.AddScoped<ITaskAdditionalInfoWriter, TaskAdditionalInfoDapperRepository>();
 
         return services;
     }

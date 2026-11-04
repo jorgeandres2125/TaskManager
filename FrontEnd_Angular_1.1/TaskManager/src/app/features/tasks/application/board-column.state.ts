@@ -70,6 +70,10 @@ export class BoardColumnState {
     this._totalCount.update((count) => Math.max(0, count - 1));
   }
 
+  replace(task: Task): void {
+    this._items.update((items) => items.map((item) => (item.id === task.id ? task : item)));
+  }
+
   add(task: Task): void {
     this._items.update((items) => [task, ...items]);
     this._totalCount.update((count) => count + 1);

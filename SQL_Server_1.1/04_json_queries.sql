@@ -98,9 +98,10 @@ CROSS APPLY OPENJSON(t.AdditionalInfo)
     ) AS info;
 
 -------------------------------------------------------------------------------
--- 6. (Opcional) JSON_MODIFY: actualizar un campo concreto del JSON.
---    Se ejecuta en una transacción que se revierte para no alterar los datos de ejemplo.
+-- 6. JSON_MODIFY: actualizar campos concretos del JSON sin reescribir el documento.
+--    Los dos ejemplos se ejecutan en una transacción que se revierte para no alterar los datos.
 -------------------------------------------------------------------------------
+-- 6.1 JSON_MODIFY directo.
 BEGIN TRANSACTION;
 
 UPDATE dbo.Tasks
@@ -113,6 +114,35 @@ WHERE Title = N'Documentar API en el README';
 SELECT Title, AdditionalInfo, Priority
 FROM dbo.Tasks
 WHERE Title = N'Documentar API en el README';
+
+ROLLBACK TRANSACTION;
+
+-- 6.2 Lo mismo con dbo.usp_PatchTaskAdditionalInfo, que es lo que ejecuta la API
+--     (PATCH /api/tasks/{id}/additional-info). Bloquea la fila, aplica cada cambio con JSON_MODIFY
+--     (las etiquetas con 'append $.tags', sin repetirlas), comprueba los límites y devuelve el resultado
+--     por su nombre: Updated, TaskNotFound, TooManyTags o TooManyMetadataEntries.
+DECLARE @PatchTaskId UNIQUEIDENTIFIER = (SELECT TOP (1) Id FROM dbo.Tasks ORDER BY CreatedAt);
+DECLARE @PatchNow DATETIME2 = SYSUTCDATETIME();
+
+BEGIN TRANSACTION;
+
+SELECT AdditionalInfo AS Antes FROM dbo.Tasks WHERE Id = @PatchTaskId;
+
+EXEC dbo.usp_PatchTaskAdditionalInfo
+    @TaskId = @PatchTaskId,
+    @Priority = N'High',
+    @AddTags = N'["urgente"]',
+    @RemoveTags = N'["backend"]',
+    @SetMetadata = N'{"ticket":"DB-42"}',
+    @RemoveMetadata = N'["sprint"]',
+    @UpdatedAt = @PatchNow,
+    @MaxTags = 10,
+    @MaxMetadataEntries = 20;
+
+SELECT AdditionalInfo AS Despues, Priority FROM dbo.Tasks WHERE Id = @PatchTaskId;
+
+-- Quitar la prioridad: en modo lax, JSON_MODIFY con NULL elimina la clave.
+EXEC dbo.usp_PatchTaskAdditionalInfo @TaskId = @PatchTaskId, @ClearPriority = 1, @UpdatedAt = @PatchNow, @MaxTags = 10, @MaxMetadataEntries = 20;
 
 ROLLBACK TRANSACTION;
 
