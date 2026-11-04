@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', 'Geist', 'SF Pro Display', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-canvas: #0b0d12;
+  --color-surface: #111827;
+  --color-panel: #151a24;
+  --color-elevated: #1d2433;
+  --color-hover: #252d3f;
+
+  --color-line: rgb(255 255 255 / 0.07);
+  --color-line-strong: rgb(255 255 255 / 0.13);
+
+  --color-fg: #e6e8ee;
+  --color-fg-muted: #a1a8b8;
+  --color-fg-subtle: #8a93a6;
+
+  --color-accent: #3b63f5;
+  --color-accent-hover: #3358e8;
+  --color-accent-active: #2f4fd6;
+  --color-accent-soft: rgb(59 99 245 / 0.14);
+  --color-accent-text: #7aa2ff;
+  --color-danger: #f87171;
+  --color-danger-soft: rgb(248 113 113 / 0.12);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+
+  --shadow-low: 0 1px 2px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.03);
+  --shadow-medium: 0 6px 16px -4px rgb(0 0 0 / 0.55), 0 2px 4px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --shadow-high: 0 18px 40px -8px rgb(0 0 0 / 0.65), 0 4px 10px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.05);
+
+  --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --default-transition-duration: 160ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: rgb(59 99 245 / 0.35);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2a3243 transparent;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium whitespace-nowrap
+      transition-[background-color,color,box-shadow,transform] duration-150 select-none active:scale-[0.98]
+      disabled:pointer-events-none disabled:opacity-45;
+  }
+  .btn-primary {
+    @apply bg-accent text-white shadow-low hover:bg-accent-hover active:bg-accent-active;
+  }
+  .btn-secondary {
+    @apply border border-line-strong bg-elevated text-fg hover:bg-hover;
+  }
+  .btn-ghost {
+    @apply text-fg-muted hover:bg-hover hover:text-fg;
+  }
+  .btn-danger {
+    @apply bg-danger-soft text-danger hover:bg-danger/20;
+  }
+
+  .card-surface {
+    @apply rounded-lg border border-line bg-elevated shadow-low;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-sm bg-white/[0.06];
+  }
+}

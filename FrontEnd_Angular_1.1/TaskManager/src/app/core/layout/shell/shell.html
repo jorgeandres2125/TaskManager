@@ -1,0 +1,72 @@
+<div class="min-h-screen bg-canvas text-fg">
+  <aside
+    class="fixed inset-y-0 left-0 z-30 hidden w-[280px] flex-col border-r border-line bg-white/[0.015] backdrop-blur-xl lg:flex"
+    aria-label="Barra lateral"
+  >
+    <div class="flex h-16 items-center gap-3 px-5">
+      <span class="flex h-8 w-8 items-center justify-center rounded-md bg-accent shadow-medium" aria-hidden="true">
+        <mat-icon class="!h-5 !w-5 !text-xl text-white">task_alt</mat-icon>
+      </span>
+      <span class="text-[0.9375rem] font-semibold tracking-tight">TaskManager</span>
+    </div>
+
+    <nav class="flex flex-col gap-0.5 px-3 py-2" aria-label="Navegación principal">
+      <p class="px-3 pb-2 pt-3 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-fg-subtle">Espacio de trabajo</p>
+      @for (link of links; track link.path) {
+        <a
+          class="group relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium text-fg-muted transition-colors duration-150 hover:bg-white/[0.04] hover:text-fg"
+          [routerLink]="link.path"
+          routerLinkActive="!bg-white/[0.06] !text-fg"
+          #rla="routerLinkActive"
+          ariaCurrentWhenActive="page"
+        >
+          <span
+            class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent-text transition-opacity duration-150"
+            [class.opacity-0]="!rla.isActive"
+            aria-hidden="true"
+          ></span>
+          <mat-icon
+            class="!h-5 !w-5 !text-xl transition-colors duration-150"
+            [class.!text-accent-text]="rla.isActive"
+            aria-hidden="true"
+            >{{ link.icon }}</mat-icon
+          >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="mt-auto border-t border-line px-5 py-4 text-xs text-fg-subtle">
+      Gestión de tareas del equipo
+    </div>
+  </aside>
+
+  <header
+    class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/80 px-4 backdrop-blur-xl lg:hidden"
+  >
+    <span class="flex h-7 w-7 items-center justify-center rounded-md bg-accent" aria-hidden="true">
+      <mat-icon class="!h-[18px] !w-[18px] !text-lg text-white">task_alt</mat-icon>
+    </span>
+    <span class="mr-auto text-sm font-semibold tracking-tight">TaskManager</span>
+    <nav class="flex gap-1" aria-label="Navegación principal">
+      @for (link of links; track link.path) {
+        <a
+          class="flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium text-fg-muted transition-colors duration-150 hover:bg-white/[0.05] hover:text-fg"
+          [routerLink]="link.path"
+          routerLinkActive="!bg-white/[0.08] !text-fg"
+          ariaCurrentWhenActive="page"
+          [attr.aria-label]="link.label"
+        >
+          <mat-icon class="!h-5 !w-5 !text-xl" aria-hidden="true">{{ link.icon }}</mat-icon>
+          <span class="hidden sm:inline">{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+  </header>
+
+  <main class="min-w-0 px-4 py-6 sm:px-6 lg:ml-[280px] lg:px-8 lg:py-8">
+    <div class="mx-auto w-full max-w-[1600px]">
+      <router-outlet />
+    </div>
+  </main>
+</div>

@@ -1,0 +1,69 @@
+<article
+  class="group/card flex flex-col gap-3 rounded-lg border border-line bg-elevated p-3.5 shadow-low transition-[transform,box-shadow,border-color,opacity] duration-200 ease-snappy hover:-translate-y-0.5 hover:border-line-strong hover:shadow-medium focus-within:border-accent-text/60 focus-within:shadow-[0_0_0_3px_rgb(59_99_245/0.22)] motion-reduce:hover:translate-y-0"
+  [class.opacity-55]="updating()"
+  [attr.aria-busy]="updating()"
+>
+  <header class="flex items-center gap-2">
+    <span class="font-mono text-xs font-medium tabular-nums tracking-tight text-fg-subtle">#{{ task().number }}</span>
+    @if (priority(); as priority) {
+      <app-task-priority [priority]="priority" />
+    }
+    <div
+      class="-my-1.5 -mr-1.5 ml-auto flex shrink-0 items-center opacity-70 transition-opacity duration-150 group-hover/card:opacity-100 group-focus-within/card:opacity-100"
+    >
+      <button
+        mat-icon-button
+        type="button"
+        [disabled]="actionsDisabled()"
+        matTooltip="Editar tarea"
+        [attr.aria-label]="'Editar tarea #' + task().number"
+        (click)="edit.emit(task())"
+      >
+        <mat-icon class="!text-[20px]">edit</mat-icon>
+      </button>
+      <app-task-status-menu
+        [task]="task()"
+        [updating]="updating()"
+        [disabled]="actionsDisabled()"
+        (statusChange)="statusChange.emit($event)"
+      />
+    </div>
+  </header>
+
+  <h3 class="text-[0.9375rem] font-medium leading-snug text-fg [overflow-wrap:anywhere]">{{ task().title }}</h3>
+
+  @if (tags().length) {
+    <ul class="flex flex-wrap gap-1.5" aria-label="Etiquetas">
+      @for (tag of tags(); track tag) {
+        <li><app-tag-pill [tag]="tag" /></li>
+      }
+    </ul>
+  }
+
+  <footer class="flex items-center gap-2 border-t border-line pt-3 text-[0.8125rem]">
+    <app-user-avatar [name]="task().userName" [photoUrl]="userPhotoUrl()" />
+    <span class="min-w-0 truncate text-fg-muted">{{ task().userName }}</span>
+
+    @if (estimatedDate(); as date) {
+      <span
+        class="ml-auto inline-flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs"
+        [class]="isOverdue() ? 'bg-danger-soft font-medium text-red-300' : 'text-fg-muted'"
+        [title]="isOverdue() ? 'Fecha estimada vencida' : 'Fecha estimada de finalización'"
+      >
+        <mat-icon class="!h-3.5 !w-3.5 !text-sm" aria-hidden="true">{{ isOverdue() ? 'event_busy' : 'calendar_today' }}</mat-icon>
+        {{ date | date: 'd MMM' }}
+        @if (isOverdue()) {
+          <span class="sr-only">(vencida)</span>
+        }
+      </span>
+    } @else {
+      <time
+        class="ml-auto shrink-0 text-xs text-fg-subtle"
+        [attr.datetime]="task().createdAt"
+        [title]="'Creada el ' + (task().createdAt | date: 'medium')"
+      >
+        {{ task().createdAt | date: 'd MMM' }}
+      </time>
+    }
+  </footer>
+</article>

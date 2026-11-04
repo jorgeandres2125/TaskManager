@@ -1,0 +1,44 @@
+<form class="flex flex-col gap-3 lg:flex-row lg:items-center" [formGroup]="form" role="search" aria-label="Filtros del tablero">
+  <app-search-field
+    class="w-full lg:max-w-md"
+    formControlName="tag"
+    label="Filtrar tareas por etiqueta"
+    placeholder="Filtrar por etiqueta…  backend, api, #frontend"
+  />
+
+  <div class="flex flex-wrap items-center gap-3">
+    <div
+      class="inline-flex h-12 items-center gap-1 rounded-lg border border-line bg-surface p-1 shadow-low"
+      role="group"
+      aria-label="Filtrar por prioridad"
+    >
+      <button
+        type="button"
+        class="flex h-full items-center rounded-md px-3 text-sm font-medium transition-colors duration-150"
+        [class]="form.controls.priority.value === null ? 'bg-elevated text-fg shadow-low' : 'text-fg-muted hover:bg-white/[0.04] hover:text-fg'"
+        [attr.aria-pressed]="form.controls.priority.value === null"
+        (click)="selectPriority(null)"
+      >
+        Todas
+      </button>
+      @for (priority of priorityOptions; track priority) {
+        <button
+          type="button"
+          class="flex h-full items-center rounded-md px-2 transition-[background-color,opacity] duration-150"
+          [class]="form.controls.priority.value === priority ? 'bg-elevated shadow-low' : 'opacity-75 hover:bg-white/[0.04] hover:opacity-100'"
+          [attr.aria-pressed]="form.controls.priority.value === priority"
+          (click)="selectPriority(priority)"
+        >
+          <app-task-priority [priority]="priority" />
+        </button>
+      }
+    </div>
+
+    @if (hasFilters) {
+      <button type="button" class="btn btn-ghost" (click)="clear()">
+        <mat-icon class="!h-[18px] !w-[18px] !text-lg" aria-hidden="true">filter_alt_off</mat-icon>
+        Limpiar filtros
+      </button>
+    }
+  </div>
+</form>

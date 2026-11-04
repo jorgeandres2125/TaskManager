@@ -1,0 +1,78 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar tarea #' + data.task?.number : 'Nueva tarea' }}</h2>
+
+<form class="contents" [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content>
+    <div class="flex flex-col gap-2">
+      <mat-form-field>
+        <mat-label>Título</mat-label>
+        <input matInput formControlName="title" [maxlength]="titleMaxLength" />
+        <mat-hint align="end">{{ form.controls.title.value.length }} / {{ titleMaxLength }}</mat-hint>
+        <mat-error>{{ form.controls.title | fieldError }}</mat-error>
+      </mat-form-field>
+
+      <app-user-select [control]="form.controls.userId" [initialUser]="initialUser" />
+
+      <fieldset class="mt-2 flex flex-col gap-2" formGroupName="additionalInfo">
+        <legend class="mb-3 text-sm font-medium text-fg-muted">Información adicional (opcional)</legend>
+
+        <div class="grid gap-2 md:grid-cols-2 md:gap-4">
+          <mat-form-field>
+            <mat-label>Prioridad</mat-label>
+            <mat-select formControlName="priority">
+              <mat-select-trigger>
+                @if (form.controls.additionalInfo.controls.priority.value; as priority) {
+                  <app-task-priority [priority]="priority" />
+                }
+              </mat-select-trigger>
+              <mat-option [value]="null">Sin prioridad</mat-option>
+              @for (priority of priorityOptions; track priority) {
+                <mat-option [value]="priority"><app-task-priority [priority]="priority" /></mat-option>
+              }
+            </mat-select>
+            <mat-error>{{ form.controls.additionalInfo.controls.priority | fieldError }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Fecha estimada de finalización</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="estimatedCompletionDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker" />
+            <mat-datepicker #picker />
+            <mat-error>{{ form.controls.additionalInfo.controls.estimatedCompletionDate | fieldError }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field>
+          <mat-label>Etiquetas</mat-label>
+          <mat-chip-grid #chipGrid formControlName="tags">
+            @for (tag of tagsControl.value; track tag) {
+              <mat-chip-row (removed)="removeTag(tag)">
+                {{ tag }}
+                <button matChipRemove type="button" [attr.aria-label]="'Quitar ' + tag">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Escriba y pulse Enter o coma"
+            [matChipInputFor]="chipGrid"
+            [matChipInputSeparatorKeyCodes]="tagSeparatorKeys"
+            [matChipInputAddOnBlur]="true"
+            (matChipInputTokenEnd)="addTag($event)"
+          />
+          @if (tagError()) {
+            <mat-hint class="!text-red-300">{{ tagError() }}</mat-hint>
+          }
+          <mat-error>{{ tagsControl | fieldError }}</mat-error>
+        </mat-form-field>
+      </fieldset>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear tarea' }}
+    </button>
+  </mat-dialog-actions>
+</form>

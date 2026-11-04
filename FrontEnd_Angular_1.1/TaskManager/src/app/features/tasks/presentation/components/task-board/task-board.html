@@ -1,0 +1,89 @@
+<div
+  cdkDropListGroup
+  class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0"
+>
+  @for (column of columns(); track column.status) {
+    <section
+      class="relative flex h-[70dvh] w-[85vw] max-w-sm shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-line bg-panel shadow-low transition-[opacity,border-color,box-shadow] duration-200 sm:w-80 lg:h-[calc(100dvh-17rem)] lg:min-h-[28rem] lg:w-auto lg:max-w-none"
+      [class.opacity-40]="isBlocked(column.status)"
+      [class.!border-accent-text/50]="isTarget(column.status)"
+      [class.!shadow-[0_0_0_3px_rgb(59_99_245/0.2)]]="isTarget(column.status)"
+      [attr.aria-label]="labels[column.status]"
+    >
+      <header class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3">
+        <span class="h-2 w-2 rounded-full" [class]="dotClasses[column.status]" aria-hidden="true"></span>
+        <h2 class="text-sm font-semibold tracking-tight text-fg">{{ labels[column.status] }}</h2>
+        <span
+          class="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums ring-1 ring-inset"
+          [class]="countClasses[column.status]"
+          >{{ column.loaded ? column.totalCount : '…' }}<span class="sr-only"> tareas</span></span
+        >
+      </header>
+
+      <div class="h-0.5 shrink-0">
+        @if (column.loading && column.loaded) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+      </div>
+
+      <div
+        #columnList
+        cdkDropList
+        cdkDropListSortingDisabled
+        [cdkDropListData]="column.status"
+        [cdkDropListEnterPredicate]="canEnter"
+        (cdkDropListDropped)="onDrop($event)"
+        class="flex flex-1 flex-col gap-2.5 overflow-y-auto p-3 transition-colors duration-200"
+        [class.bg-accent-soft]="isTarget(column.status)"
+        [attr.aria-busy]="column.loading"
+      >
+        @for (task of column.items; track task.id) {
+          <app-task-card
+            cdkDrag
+            [cdkDragData]="task"
+            [cdkDragDisabled]="updatingTaskId() !== null"
+            [cdkDragStartDelay]="dragStartDelay"
+            (cdkDragStarted)="draggingTask.set(task)"
+            (cdkDragEnded)="draggingTask.set(null)"
+            class="cursor-grab active:cursor-grabbing"
+            [task]="task"
+            [userPhotoUrl]="photoUrlOf()(task.userId)"
+            [updating]="updatingTaskId() === task.id"
+            [actionsDisabled]="updatingTaskId() !== null"
+            (statusChange)="move.emit($event)"
+            (edit)="edit.emit($event)"
+          />
+        } @empty {
+          @if (column.loaded) {
+            <div class="flex flex-col items-center gap-2 px-4 py-12 text-center">
+              <span class="mb-1 flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-elevated" aria-hidden="true">
+                <mat-icon class="!text-fg-subtle">{{ emptyIcons[column.status] }}</mat-icon>
+              </span>
+              <p class="text-sm font-medium text-fg">{{ emptyTitles[column.status] }}</p>
+              <p class="max-w-56 text-xs leading-relaxed text-fg-muted">{{ emptyHints[column.status] }}</p>
+            </div>
+          } @else {
+            @for (placeholder of skeletonCards; track placeholder) {
+              <div class="card-surface flex flex-col gap-3 p-3.5" aria-hidden="true">
+                <div class="flex gap-2"><div class="skeleton h-4 w-10"></div><div class="skeleton h-4 w-14 !rounded-full"></div></div>
+                <div class="skeleton h-4 w-4/5"></div>
+                <div class="flex gap-1.5"><div class="skeleton h-5 w-16 !rounded-full"></div><div class="skeleton h-5 w-12 !rounded-full"></div></div>
+                <div class="flex items-center gap-2 border-t border-line pt-3">
+                  <div class="skeleton h-7 w-7 !rounded-full"></div>
+                  <div class="skeleton h-3 w-24"></div>
+                </div>
+              </div>
+            }
+            <span class="sr-only">Cargando tareas…</span>
+          }
+        }
+
+        @if (column.hasMore) {
+          <p class="py-2 text-center text-xs text-fg-muted" (appInViewport)="loadMore.emit(column.status)">
+            {{ column.loading ? 'Cargando más tareas…' : column.items.length + ' de ' + column.totalCount }}
+          </p>
+        }
+      </div>
+    </section>
+  }
+</div>

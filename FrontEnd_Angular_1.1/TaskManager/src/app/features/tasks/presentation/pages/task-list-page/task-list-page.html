@@ -1,0 +1,47 @@
+<section class="flex flex-col gap-6">
+  <app-page-header title="Tareas" [subtitle]="subtitle()" [stats]="stats()">
+    <button pageAction type="button" class="btn btn-primary" (click)="openForm()">
+      <mat-icon class="!h-5 !w-5 !text-xl" aria-hidden="true">add</mat-icon>
+      Nueva tarea
+    </button>
+  </app-page-header>
+
+  <div class="flex flex-col gap-3">
+    <app-task-filters [filters]="filters()" (filtersChange)="onFiltersChange($event)" />
+
+    @if (selectedUserId()) {
+      <div class="flex items-center gap-2 self-start rounded-full border border-line bg-elevated py-1 pl-1 pr-1 text-sm shadow-low">
+        <app-user-avatar [name]="selectedUser()?.name ?? '?'" [photoUrl]="directory.photoUrlOf(selectedUserId())" />
+        <span class="text-fg-muted">Responsable:</span>
+        <strong class="font-medium text-fg">{{ selectedUser()?.name ?? 'usuario seleccionado' }}</strong>
+        <button
+          type="button"
+          class="flex h-7 w-7 items-center justify-center rounded-full text-fg-subtle transition-colors duration-150 hover:bg-hover hover:text-fg"
+          aria-label="Quitar filtro por responsable"
+          (click)="selectUser(null)"
+        >
+          <mat-icon class="!h-[18px] !w-[18px] !text-lg">close</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="flex flex-col gap-4 lg:flex-row">
+    <app-user-rail
+      class="lg:h-[calc(100dvh-17rem)] lg:min-h-[28rem] lg:shrink-0"
+      [users]="directory.users()"
+      [selectedUserId]="selectedUserId()"
+      (selectedUserIdChange)="selectUser($event)"
+    />
+    <app-task-board
+      class="min-w-0 flex-1"
+      [columns]="boardColumns()"
+      [scrollResetKey]="filters()"
+      [updatingTaskId]="board.updatingTaskId()"
+      [photoUrlOf]="directory.photoUrlOf"
+      (move)="onMove($event)"
+      (loadMore)="onLoadMore($event)"
+      (edit)="openForm($event)"
+    />
+  </div>
+</section>

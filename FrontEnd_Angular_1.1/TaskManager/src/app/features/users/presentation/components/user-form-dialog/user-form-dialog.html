@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+
+<form class="contents" [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content>
+    <div class="flex flex-col gap-2">
+      <section class="mb-2 flex items-center gap-4" aria-label="Foto del usuario">
+        <app-user-avatar [name]="nameValue()" size="xl" [photoUrl]="photoUrl()" />
+        <div class="flex min-w-0 flex-col items-start gap-1">
+          <div class="flex flex-wrap gap-2">
+            <button mat-stroked-button type="button" [disabled]="saving()" (click)="photoInput.click()">
+              <mat-icon>photo_camera</mat-icon>
+              {{ hasPhoto() ? 'Cambiar foto' : 'Elegir foto' }}
+            </button>
+            @if (hasPhoto()) {
+              <button mat-button type="button" [disabled]="saving()" (click)="removePhoto()">Quitar</button>
+            }
+          </div>
+          <input #photoInput type="file" class="hidden" [accept]="photoAccept" (change)="onPhotoSelected($event)" />
+          @if (photoError()) {
+            <p class="text-sm text-red-300" role="alert">{{ photoError() }}</p>
+          } @else if (selectedFileName()) {
+            <p class="max-w-full truncate text-sm text-fg-muted" [title]="selectedFileName()">{{ selectedFileName() }}</p>
+          } @else if (photoChange().kind === 'remove') {
+            <p class="text-sm text-fg-muted">La foto se quitará al guardar.</p>
+          } @else {
+            <p class="text-sm text-fg-muted">JPG, PNG o WebP de hasta 2 MB.</p>
+          }
+        </div>
+      </section>
+
+      <mat-form-field>
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" autocomplete="name" />
+        <mat-error>{{ form.controls.name | fieldError }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="email" />
+        <mat-error>{{ form.controls.email | fieldError }}</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear usuario' }}
+    </button>
+  </mat-dialog-actions>
+</form>
