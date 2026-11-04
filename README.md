@@ -110,19 +110,19 @@ El SQL_Server_1.1/README.md explica cada script y cómo usarlos en un hosting do
 
 ## Trazabilidad de requisitos
 
-| Requisito | Dónde se cumple |
-|---|---|
-| Crear y listar usuarios con nombre y correo | `POST` y `GET /api/users`; pantalla Usuarios |
-| Crear tareas con formulario reactivo | `POST /api/tasks`; ventana «Nueva tarea» |
-| Asignar una tarea a un usuario y elegirlo de un listado | Campo `userId` obligatorio; selector con búsqueda; reasignación con `PUT /api/tasks/{id}` |
-| Listar tareas y filtrar por estado | `GET /api/tasks?status=`; tablero Kanban y filtro «Estado» |
-| Cambiar el estado de una tarea | `PUT /api/tasks/{id}/status`; arrastrar la tarjeta o usar su menú |
-| Título obligatorio | Validador de la API y CHECK `CK_Tasks_Title_NotBlank` |
-| Una tarea debe tener un usuario | Validador de la API y clave foránea `FK_Tasks_Users_UserId` |
-| Prohibido pasar de Pending a Done | `TaskStatusTransitions` (respuesta 409); la interfaz no permite soltar la tarjeta en Completada |
-| Obtener tareas por usuario | `GET /api/tasks?userId=`; panel del equipo |
-| Ordenar por fecha de creación | `GET /api/tasks?sortDirection=`; `usp_GetTasks` ordena por `CreatedAt` |
-| Claves primarias, foráneas e índices | `SQL_Server_1.1/01_schema.sql` |
-| Script de creación de la base de datos | `SQL_Server_1.1/recreate_database.sql` |
-| Funciones JSON nativas de SQL Server | `ISJSON`, `JSON_VALUE`, `OPENJSON` y `JSON_QUERY` en el esquema y en `usp_GetTasks`; ejemplos en `04_json_queries.sql` |
-| Manejo de errores | ProblemDetails en la API; avisos y errores por campo en la interfaz |
+| Requisito                                               | Dónde se cumple                                                                                                        |
+|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| Crear y listar usuarios con nombre y correo             | `POST` y `GET /api/users`; pantalla Usuarios                                                                           |
+| Crear tareas con formulario reactivo                    | `POST /api/tasks`; ventana «Nueva tarea»                                                                               |
+| Asignar una tarea a un usuario y elegirlo de un listado | Campo `userId` obligatorio; selector con búsqueda; reasignación con `PUT /api/tasks/{id}`                              |
+| Listar tareas y filtrar por estado                      | `GET /api/tasks?status=`; tablero Kanban y filtro «Estado»                                                             |
+| Cambiar el estado de una tarea                          | `PUT /api/tasks/{id}/status`; arrastrar la tarjeta o usar su menú                                                      |
+| Título obligatorio                                      | Validador de la API y CHECK `CK_Tasks_Title_NotBlank`                                                                  |
+| Una tarea debe tener un usuario                         | Validador de la API y clave foránea `FK_Tasks_Users_UserId`                                                            |
+| Prohibido pasar de Pending a Done                       | `TaskStatusTransitions` (respuesta 409); la interfaz no permite soltar la tarjeta en Completada                        |
+| Obtener tareas por usuario                              | `GET /api/tasks?userId=`; panel del equipo                                                                             |
+| Ordenar por fecha de creación                           | `GET /api/tasks?sortDirection=`; `usp_GetTasks` ordena por `CreatedAt`                                                 |
+| Claves primarias, foráneas e índices                    | `SQL_Server_1.1/01_schema.sql`                                                                                         |
+| Script de creación de la base de datos                  | `SQL_Server_1.1/recreate_database.sql`                                                                                 |
+| Funciones JSON nativas de SQL Server                    | `ISJSON`, `JSON_VALUE`, `OPENJSON` y `JSON_QUERY` en el esquema y en `usp_GetTasks`; ejemplos en `04_json_queries.sql` |
+| Manejo de errores                                       | ProblemDetails en la API; avisos y errores por campo en la interfaz                                                    |
