@@ -1,0 +1,32 @@
+<section class="flex flex-col gap-6">
+  <app-page-header title="Usuarios" [subtitle]="subtitle()" [stats]="stats()">
+    <button pageAction type="button" class="btn btn-primary" (click)="openForm()">
+      <mat-icon class="!h-5 !w-5 !text-xl" aria-hidden="true">person_add</mat-icon>
+      Nuevo usuario
+    </button>
+  </app-page-header>
+
+  <app-search-field
+    class="w-full md:max-w-xl"
+    role="search"
+    label="Buscar usuarios por nombre o correo"
+    placeholder="Buscar por nombre o correo…"
+    [formControl]="searchControl"
+  />
+
+  <app-paged-list-panel
+    [loading]="state.loading()"
+    [loaded]="state.loaded()"
+    [failed]="state.error() !== null && state.items().length === 0"
+    [empty]="state.isEmpty()"
+    errorMessage="No se pudo cargar la lista de usuarios."
+    emptyMessage="No hay usuarios que coincidan con la búsqueda."
+    [totalCount]="state.totalCount()"
+    [page]="state.query().page"
+    [pageSize]="state.query().pageSize"
+    (pageChange)="state.changePage($event.page, $event.pageSize)"
+    (retry)="state.refresh()"
+  >
+    <app-user-grid [users]="state.items()" (edit)="openForm($event)" />
+  </app-paged-list-panel>
+</section>

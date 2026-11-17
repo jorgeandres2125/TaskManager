@@ -1,0 +1,28 @@
+<mat-form-field class="w-full" [class.mat-form-field-invalid]="showError()">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    matInput
+    [formControl]="searchControl"
+    [matAutocomplete]="autocomplete"
+    [errorStateMatcher]="errorStateMatcher"
+    placeholder="Escriba para buscar por nombre o correo"
+    (blur)="control().markAsTouched()"
+  />
+  <mat-autocomplete
+    #autocomplete="matAutocomplete"
+    [displayWith]="displayUser"
+    (optionSelected)="select($event.option.value)"
+  >
+    @for (user of users(); track user.id) {
+      <mat-option [value]="user">
+        <span class="flex flex-col py-1 leading-tight">
+          <span class="font-medium">{{ user.name }}</span>
+          <span class="break-all text-xs text-fg-muted">{{ user.email }}</span>
+        </span>
+      </mat-option>
+    } @empty {
+      <mat-option disabled>No se encontraron usuarios.</mat-option>
+    }
+  </mat-autocomplete>
+  <mat-error>{{ control() | fieldError }}</mat-error>
+</mat-form-field>

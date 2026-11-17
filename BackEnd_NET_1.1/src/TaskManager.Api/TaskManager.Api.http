@@ -1,0 +1,48 @@
+@baseUrl = http://localhost:15200
+# Reemplace con Ids reales devueltos por GET /api/users y GET /api/tasks.
+@userId = 00000000-0000-0000-0000-000000000000
+@taskId = 00000000-0000-0000-0000-000000000000
+
+### Crear usuario
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+  "name": "Ana Gómez",
+  "email": "ana.gomez@acme.com"
+}
+
+### Listar usuarios (paginado: page desde 1, pageSize de 1 a 100; por defecto 1 y 20)
+GET {{baseUrl}}/api/users?page=1&pageSize=20
+
+### Crear tarea (additionalInfo es opcional y se guarda como JSON)
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Configurar pipeline de CI",
+  "userId": "{{userId}}",
+  "additionalInfo": {
+    "priority": "High",
+    "estimatedCompletionDate": "2026-11-20",
+    "tags": ["devops", "backend"],
+    "metadata": { "repo": "taskmanager-api" }
+  }
+}
+
+### Listar tareas (todos los filtros y la paginación son opcionales)
+GET {{baseUrl}}/api/tasks?userId={{userId}}&status=Pending&sortDirection=desc&page=1&pageSize=20
+
+### Filtrar por valores del JSON
+GET {{baseUrl}}/api/tasks?priority=High&tag=backend
+
+### Obtener una tarea
+GET {{baseUrl}}/api/tasks/{{taskId}}
+
+### Cambiar estado (Pending -> Done devuelve 409)
+PUT {{baseUrl}}/api/tasks/{{taskId}}/status
+Content-Type: application/json
+
+{
+  "status": "InProgress"
+}

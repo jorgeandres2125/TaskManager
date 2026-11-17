@@ -1,0 +1,10 @@
+import { Routes } from '@angular/router';
+
+export const USERS_ROUTES: Routes = [
+  {
+    path: '',
+    title: 'Usuarios · TaskManager',
+    loadComponent: () =>
+      import('./presentation/pages/user-list-page/user-list-page').then((m) => m.UserListPage),
+  },
+];

@@ -1,0 +1,205 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$blue-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      typography: (
+        plain-family: (Inter, 'Geist', 'SF Pro Display', system-ui, sans-serif),
+        brand-family: (Inter, 'Geist', 'SF Pro Display', system-ui, sans-serif),
+      ),
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      background: #0b0d12,
+      surface: #151a24,
+      on-surface: #e6e8ee,
+      on-surface-variant: #a1a8b8,
+      surface-container-lowest: #0b0d12,
+      surface-container-low: #111827,
+      surface-container: #151a24,
+      surface-container-high: #1d2433,
+      surface-container-highest: #252d3f,
+      outline: rgb(255 255 255 / 0.18),
+      outline-variant: rgb(255 255 255 / 0.08),
+      primary: #7aa2ff,
+      on-primary: #0b1640,
+      primary-container: #3b63f5,
+      on-primary-container: #ffffff,
+      error: #f87171,
+    )
+  );
+
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      filled-container-color: #3b63f5,
+      filled-label-text-color: #ffffff,
+      filled-container-height: 40px,
+      filled-label-text-weight: 600,
+      outlined-container-shape: 10px,
+      outlined-outline-color: rgb(255 255 255 / 0.13),
+      outlined-label-text-color: #e6e8ee,
+      outlined-container-height: 40px,
+      text-container-shape: 10px,
+      text-label-text-color: #a1a8b8,
+      text-container-height: 40px,
+      protected-container-shape: 10px,
+    )
+  );
+  @include mat.icon-button-overrides(
+    (
+      icon-color: #a1a8b8,
+      state-layer-size: 36px,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 10px,
+      outlined-outline-color: rgb(255 255 255 / 0.13),
+      outlined-hover-outline-color: rgb(255 255 255 / 0.24),
+      outlined-focus-outline-color: #7aa2ff,
+      outlined-label-text-color: #a1a8b8,
+      outlined-input-text-color: #e6e8ee,
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-shape: 16px,
+      container-color: #151a24,
+      subhead-color: #e6e8ee,
+      supporting-text-color: #a1a8b8,
+    )
+  );
+  @include mat.menu-overrides(
+    (
+      container-shape: 10px,
+      container-color: #1d2433,
+    )
+  );
+  @include mat.select-overrides(
+    (
+      panel-background-color: #1d2433,
+    )
+  );
+  @include mat.autocomplete-overrides(
+    (
+      background-color: #1d2433,
+    )
+  );
+  @include mat.paginator-overrides(
+    (
+      container-background-color: transparent,
+      container-text-color: #a1a8b8,
+    )
+  );
+  @include mat.progress-bar-overrides(
+    (
+      active-indicator-color: #7aa2ff,
+      track-color: rgb(122 162 255 / 0.15),
+      active-indicator-height: 2px,
+      track-height: 2px,
+    )
+  );
+  @include mat.tooltip-overrides(
+    (
+      container-color: #252d3f,
+      supporting-text-color: #e6e8ee,
+      container-shape: 6px,
+    )
+  );
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 999px,
+      outline-color: rgb(255 255 255 / 0.13),
+    )
+  );
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+.mdc-notched-outline__notch {
+  border-right-style: none !important;
+}
+
+.mat-mdc-dialog-surface {
+  border: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: var(--shadow-high) !important;
+}
+
+.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.cdk-drag-preview {
+  border-radius: 14px;
+  box-shadow: var(--shadow-high);
+  transform-origin: center;
+  rotate: 1.5deg;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.25;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.notification-success {
+  --mat-snack-bar-container-color: #10291d;
+  --mat-snack-bar-supporting-text-color: #a7f3d0;
+  --mat-snack-bar-button-color: #6ee7b7;
+  --mat-snack-bar-container-shape: 10px;
+}
+
+.notification-error {
+  --mat-snack-bar-container-color: #2c1416;
+  --mat-snack-bar-supporting-text-color: #fecaca;
+  --mat-snack-bar-button-color: #fca5a5;
+  --mat-snack-bar-container-shape: 10px;
+}
+
+.notification-success .mat-mdc-snack-bar-container,
+.notification-error .mat-mdc-snack-bar-container,
+.mat-mdc-snack-bar-container.notification-success,
+.mat-mdc-snack-bar-container.notification-error {
+  border: 1px solid rgb(255 255 255 / 0.08);
+}

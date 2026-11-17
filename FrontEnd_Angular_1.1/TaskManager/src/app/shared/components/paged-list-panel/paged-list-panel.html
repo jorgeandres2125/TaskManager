@@ -1,0 +1,58 @@
+<div class="flex flex-col gap-4">
+  <div class="-mb-3 h-0.5 overflow-hidden rounded-full">
+    @if (loading() && loaded()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+  </div>
+
+  @if (failed()) {
+    <div class="flex flex-col items-center gap-3 rounded-xl border border-line bg-panel px-6 py-14 text-center" role="alert">
+      <span class="flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-elevated" aria-hidden="true">
+        <mat-icon class="!text-red-300">cloud_off</mat-icon>
+      </span>
+      <p class="text-sm font-medium text-fg">{{ errorMessage() }}</p>
+      <p class="text-xs text-fg-muted">Compruebe la conexión con la API e inténtelo de nuevo.</p>
+      <button type="button" class="btn btn-secondary mt-1" (click)="retry.emit()">
+        <mat-icon class="!h-[18px] !w-[18px] !text-lg" aria-hidden="true">refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+  } @else if (!loaded()) {
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" aria-busy="true">
+      @for (placeholder of skeletonItems; track placeholder) {
+        <div class="card-surface flex flex-col gap-3 p-4" aria-hidden="true">
+          <div class="skeleton h-12 w-12 !rounded-full"></div>
+          <div class="flex flex-col gap-2">
+            <div class="skeleton h-4 w-3/4"></div>
+            <div class="skeleton h-3 w-full"></div>
+          </div>
+          <div class="skeleton mt-1 h-3 w-1/2"></div>
+        </div>
+      }
+      <span class="sr-only">Cargando…</span>
+    </div>
+  } @else if (empty()) {
+    <div class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line-strong px-6 py-14 text-center">
+      <span class="mb-1 flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-elevated" aria-hidden="true">
+        <mat-icon class="!text-fg-subtle">search_off</mat-icon>
+      </span>
+      <p class="text-sm font-medium text-fg">{{ emptyMessage() }}</p>
+      <p class="text-xs text-fg-muted">Pruebe con otro nombre o correo.</p>
+    </div>
+  } @else {
+    <div [attr.aria-busy]="loading()" class="transition-opacity duration-150" [class.opacity-60]="loading()">
+      <ng-content />
+    </div>
+  }
+
+  <mat-paginator
+    class="rounded-lg border border-line bg-panel"
+    [length]="totalCount()"
+    [pageIndex]="page() - 1"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [hidePageSize]="viewport.isCompact()"
+    [showFirstLastButtons]="!viewport.isCompact()"
+    (page)="onPage($event)"
+  />
+</div>

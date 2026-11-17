@@ -1,0 +1,123 @@
+@if (viewport.isCompact()) {
+  <div class="flex flex-col gap-2 rounded-xl border border-line bg-panel p-2 shadow-low">
+    <app-search-field size="sm" label="Buscar usuario por nombre" placeholder="Buscar persona…" [formControl]="searchControl" />
+    <div class="flex items-center gap-1">
+      <ng-container *ngTemplateOutlet="allButton" />
+      <cdk-virtual-scroll-viewport
+        orientation="horizontal"
+        [itemSize]="stripItemWidth"
+        class="h-12 min-w-0 flex-1"
+        aria-label="Filtrar tareas por responsable"
+      >
+        <div *cdkVirtualFor="let user of visibleUsers(); trackBy: trackById" class="flex h-12 w-12 items-center justify-center">
+          <ng-container *ngTemplateOutlet="userButton; context: { $implicit: user }" />
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+    @if (!visibleUsers().length) {
+      <p class="px-2 pb-1 text-xs text-fg-muted">Nadie coincide con la búsqueda.</p>
+    }
+  </div>
+} @else {
+  <div
+    class="flex h-full flex-col rounded-xl border border-line bg-panel shadow-low transition-[width] duration-200 ease-snappy motion-reduce:transition-none"
+    [class]="isCollapsed() ? 'w-[68px]' : 'w-[248px]'"
+  >
+    <header class="flex h-[49px] shrink-0 items-center gap-2 border-b border-line" [class]="isCollapsed() ? 'justify-center px-2' : 'px-3'">
+      @if (!isCollapsed()) {
+        <h2 class="text-sm font-semibold tracking-tight text-fg">Equipo</h2>
+        <span class="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs font-medium tabular-nums text-fg-muted">{{ users().length }}</span>
+      }
+      <button
+        type="button"
+        class="flex h-8 w-8 items-center justify-center rounded-md text-fg-subtle transition-colors duration-150 hover:bg-hover hover:text-fg"
+        [class.ml-auto]="!isCollapsed()"
+        [attr.aria-label]="isCollapsed() ? 'Desplegar panel del equipo' : 'Plegar panel del equipo'"
+        [attr.aria-expanded]="!isCollapsed()"
+        [matTooltip]="isCollapsed() ? 'Desplegar' : 'Plegar'"
+        matTooltipPosition="right"
+        (click)="toggleCollapsed()"
+      >
+        <mat-icon class="!h-5 !w-5 !text-xl">{{ isCollapsed() ? 'left_panel_open' : 'left_panel_close' }}</mat-icon>
+      </button>
+    </header>
+
+    @if (!isCollapsed()) {
+      <div class="shrink-0 px-2 pt-2">
+        <app-search-field size="sm" label="Buscar usuario por nombre" placeholder="Buscar persona…" [formControl]="searchControl" />
+      </div>
+    }
+
+    <nav class="flex min-h-0 flex-1 flex-col p-2" aria-label="Filtrar tareas por responsable">
+      <ng-container *ngTemplateOutlet="allButton" />
+      <div class="mx-2 my-1.5 h-px shrink-0 bg-line" aria-hidden="true"></div>
+
+      <cdk-virtual-scroll-viewport [itemSize]="rowHeight" class="min-h-0 flex-1">
+        <div *cdkVirtualFor="let user of visibleUsers(); trackBy: trackById" class="h-11">
+          <ng-container *ngTemplateOutlet="userButton; context: { $implicit: user }" />
+        </div>
+      </cdk-virtual-scroll-viewport>
+
+      @if (!visibleUsers().length) {
+        <p class="px-2 py-3 text-center text-xs text-fg-muted">{{ isCollapsed() ? 'Sin resultados' : 'Nadie coincide con la búsqueda.' }}</p>
+      }
+    </nav>
+  </div>
+}
+
+<ng-template #allButton>
+  <button
+    type="button"
+    class="relative flex shrink-0 items-center gap-3 rounded-md text-sm font-medium transition-colors duration-150 hover:bg-white/[0.05]"
+    [class]="
+      (viewport.isCompact() ? 'h-12 w-12 justify-center ' : isCollapsed() ? 'h-11 w-full justify-center ' : 'h-11 w-full px-2 ') +
+      (selectedUserId() === null ? 'bg-white/[0.06] text-fg' : 'text-fg-muted')
+    "
+    [attr.aria-pressed]="selectedUserId() === null"
+    aria-label="Todos los responsables"
+    matTooltip="Todos los responsables"
+    matTooltipPosition="right"
+    [matTooltipDisabled]="!isCollapsed() && !viewport.isCompact()"
+    (click)="selectedUserIdChange.emit(null)"
+  >
+    @if (selectedUserId() === null && !viewport.isCompact()) {
+      <span class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent-text" aria-hidden="true"></span>
+    }
+    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06]" aria-hidden="true">
+      <mat-icon class="!h-[18px] !w-[18px] !text-lg">groups</mat-icon>
+    </span>
+    @if (!isCollapsed() && !viewport.isCompact()) {
+      <span>Todos</span>
+    }
+  </button>
+</ng-template>
+
+<ng-template #userButton let-user>
+  <button
+    type="button"
+    class="relative flex items-center gap-3 rounded-md text-sm transition-colors duration-150 hover:bg-white/[0.05]"
+    [class]="
+      (viewport.isCompact() ? 'h-11 w-11 justify-center ' : isCollapsed() ? 'h-11 w-full justify-center ' : 'h-11 w-full px-2 ') +
+      (selectedUserId() === user.id ? 'bg-white/[0.06] font-medium text-fg' : 'text-fg-muted hover:text-fg')
+    "
+    [attr.aria-pressed]="selectedUserId() === user.id"
+    [attr.aria-label]="'Tareas de ' + user.name"
+    [matTooltip]="user.name"
+    matTooltipPosition="right"
+    [matTooltipDisabled]="!isCollapsed() && !viewport.isCompact()"
+    (click)="toggle(user.id)"
+  >
+    @if (selectedUserId() === user.id && !viewport.isCompact()) {
+      <span class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent-text" aria-hidden="true"></span>
+    }
+    <app-user-avatar
+      [name]="user.name"
+      size="sm"
+      [photoUrl]="user | userPhotoUrl"
+      [class]="selectedUserId() === user.id ? 'rounded-full ring-2 ring-accent-text ring-offset-2 ring-offset-panel' : ''"
+    />
+    @if (!isCollapsed() && !viewport.isCompact()) {
+      <span class="min-w-0 truncate">{{ user.name }}</span>
+    }
+  </button>
+</ng-template>
